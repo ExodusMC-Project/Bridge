@@ -25,7 +25,7 @@ public final class Pipeline {
 
     public <T extends Event> void register(final String topic, final Class<T> cls, final Consumer<T> consumer) {
         this.topics.computeIfAbsent(topic, redis::getTopic).addListener(cls, (channel, msg) -> consumer.accept(msg));
-        if (cls.isAssignableFrom(EventResponsible.class)) {
+        if (EventResponsible.class.isAssignableFrom(cls)) {
             this.topics.computeIfAbsent(topic, redis::getTopic).addListener(Response.class, (channel, msg) -> {
                 final var future = this.responses.get(msg.request());
                 if (future != null) {
