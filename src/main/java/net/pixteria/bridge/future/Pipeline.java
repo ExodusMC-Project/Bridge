@@ -5,7 +5,6 @@ import org.redisson.api.RedissonClient;
 
 import java.time.Duration;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -20,18 +19,20 @@ public final class Pipeline {
 
     private final RedissonClient redis;
 
-    public Pipeline(final RedissonClient redis, final String responseTopic) {
+    public Pipeline(final RedissonClient redis) {
         this.redis = redis;
-        this.register(responseTopic, Response.class, event -> {
-            final var future = this.responses.get(event.request());
-            if (future != null) {
-                future.complete(event.data());
-            }
-        });
     }
 
     public <T extends Event> void register(final String topic, final Class<T> cls, final Consumer<T> consumer) {
         this.topics.computeIfAbsent(topic, redis::getTopic).addListener(cls, (channel, msg) -> consumer.accept(msg));
+        if (cls.isAssignableFrom(EventResponsible.class)) {
+            this.topics.computeIfAbsent(topic, redis::getTopic).addListener(Response.class, (channel, msg) -> {
+                final var future = this.responses.get(msg.request());
+                if (future != null) {
+                    future.complete(msg.data());
+                }
+            });
+        }
     }
 
     public <T extends Event> void callAndForget(final String topic, final T event) {

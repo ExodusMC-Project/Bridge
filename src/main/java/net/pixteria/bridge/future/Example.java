@@ -8,7 +8,7 @@ final class Example {
 
     public static void main(String[] args) {
         final RedissonClient redis = null;
-        final var pipeline = new Pipeline(redis, "bridge-response-topic");
+        final var pipeline = new Pipeline(redis);
         pipeline.register("test-event", TestEvent.Request.class, event -> {
             assert event.test.equals("ping");
             event.reply(new TestEvent.Response("pong"));
