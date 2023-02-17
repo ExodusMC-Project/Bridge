@@ -47,12 +47,15 @@ public class BridgeEventPipeline {
     public <R, M extends BridgeEvent> BridgeResponse<R> callEventAndWait(String topicName, M event, long timeout) {
         long startTime = System.currentTimeMillis();
 
-        while ((System.currentTimeMillis() - startTime > timeout) && this.responseQueue.contains(event.getEventId())) {
-            // just a blocking statement
+        this.responseQueue.add(event.getEventId());
+        boolean expired = false;
+
+        while (!expired && this.responseQueue.contains(event.getEventId())) {
+            expired = System.currentTimeMillis() - startTime > timeout;
         }
 
-        if (this.responseQueue.remove(event.getEventId())) {
-            // This means no response has actually been received
+        if (expired) {
+            this.responses.remove(event.getEventId());
             return null;
         }
 
