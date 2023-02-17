@@ -26,8 +26,16 @@ public final class Pipeline {
         this.instanceId = instanceId;
     }
 
-    public <T> void register(final String topic, final Class<T> cls, final Consumer<T> consumer) {
-        this.topic(topic).addListener(cls, (channel, msg) -> consumer.accept(msg));
+    public <T extends Event> void register(final String topic, final Class<T> cls, final Consumer<T> consumer) {
+        this.register(topic, cls, consumer, true);
+    }
+
+    public <T extends Event> void register(final String topic, final Class<T> cls, final Consumer<T> consumer, final boolean acceptsItself) {
+        this.topic(topic).addListener(cls, (channel, msg) -> {
+            if (acceptsItself || msg.instanceId().equals(this.instanceId)) {
+                consumer.accept(msg);
+            }
+        });
         if (EventResponsible.class.isAssignableFrom(cls)) {
             this.register(topic, Response.class, response -> {
                 final var future = this.responses.get(response.request());
@@ -38,7 +46,7 @@ public final class Pipeline {
         }
     }
 
-    public <T> void callAndForget(final String topic, final T event) {
+    public <T extends Event> void callAndForget(final String topic, final T event) {
         this.topic(topic).publish(event);
         if (event instanceof EventResponsible<?> responsible) {
             responsible.init(this.instanceId, this, topic);

@@ -13,6 +13,10 @@ public abstract class Event {
         this.instanceId = instanceId;
     }
 
+    String instanceId() {
+        return this.instanceId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
