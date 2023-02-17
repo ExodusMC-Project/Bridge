@@ -63,7 +63,11 @@ public final class Pipeline {
     }
 
     public <R, T extends EventResponsible<R>> CompletableFuture<R> call(final String topic, final T data, final Duration timeout) {
-        this.callAndForget(topic, data);
+        return this.call(null, topic, data, timeout);
+    }
+
+    public <R, T extends EventResponsible<R>> CompletableFuture<R> call(final String target, final String topic, final T data, final Duration timeout) {
+        this.callAndForget(target, topic, data);
         final var future = new CompletableFuture<R>();
         if (!timeout.isNegative()) {
             future
