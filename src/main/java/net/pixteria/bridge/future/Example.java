@@ -23,7 +23,7 @@ final class Example {
         private static final class Request extends EventResponsible<Response> {
             private final String test;
 
-            public Request(String test) {
+            public Request(final String test) {
                 this.test = test;
             }
         }
@@ -31,7 +31,7 @@ final class Example {
         private static final class Response {
             private final String test2;
 
-            public Response(String test2) {
+            public Response(final String test2) {
                 this.test2 = test2;
             }
         }
