@@ -5,13 +5,14 @@ import java.util.UUID;
 
 public abstract class Event {
 
-    private final UUID id = UUID.randomUUID();
+    private UUID id;
 
     private String instanceId;
 
     private String target;
 
-    void init(final String instanceId, final String target) {
+    void init(final UUID id, final String instanceId, final String target) {
+        this.id = id;
         this.instanceId = instanceId;
         this.target = target;
     }

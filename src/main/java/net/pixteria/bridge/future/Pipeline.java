@@ -5,6 +5,7 @@ import org.redisson.api.RedissonClient;
 
 import java.time.Duration;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -57,7 +58,7 @@ public final class Pipeline {
     public <T extends Event> void callAndForget(final String target, final String topic, final T event) {
         this.topic(topic).publish(event);
         if (event instanceof EventResponsible<?> responsible) {
-            responsible.init(this.instanceId, target, this, topic);
+            responsible.init(UUID.randomUUID(), this.instanceId, target, this, topic);
         }
     }
 
