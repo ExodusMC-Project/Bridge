@@ -1,8 +1,5 @@
 package net.pixteria.bridge;
 
-import org.redisson.api.RTopic;
-import org.redisson.api.RedissonClient;
-
 import java.time.Duration;
 import java.util.Map;
 import java.util.UUID;
@@ -13,37 +10,35 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public final class RedisPipeline {
+public final class BridgePipeline {
 
-    private final Map<String, RTopic> topics = new ConcurrentHashMap<>();
+    private final Map<BridgeMessage, CompletableFuture> responses = new ConcurrentHashMap<>();
 
-    private final Map<RedisMessage, CompletableFuture> responses = new ConcurrentHashMap<>();
-
-    private final RedissonClient redis;
+    private final BridgePubSub pubSub;
 
     private final String instanceId;
 
-    private Predicate<RedisMessage> filter;
+    private Predicate<BridgeMessage> filter;
 
-    public RedisPipeline(final RedissonClient redis, final String instanceId) {
-        this.redis = redis;
+    public BridgePipeline(final BridgePubSub pubSub, final String instanceId) {
+        this.pubSub = pubSub;
         this.instanceId = instanceId;
     }
 
-    public RedisPipeline filter(final Predicate<RedisMessage> filter) {
+    public BridgePipeline filter(final Predicate<BridgeMessage> filter) {
         if (this.filter == null) {
-            this.filter = redisMessage -> true;
+            this.filter = message -> true;
         }
         this.filter = this.filter.and(filter);
         return this;
     }
 
-    public <T extends RedisMessage> void register(final String topic, final Class<T> cls, final Consumer<T> consumer) {
+    public <T extends BridgeMessage> void register(final String topic, final Class<T> cls, final Consumer<T> consumer) {
         this.register(topic, cls, true, consumer);
     }
 
-    public <T extends RedisMessage> void register(final String topic, final Class<T> cls, final boolean acceptsItself, final Consumer<T> consumer) {
-        this.topic(topic).addListener(cls, (channel, msg) -> {
+    public <T extends BridgeMessage> void register(final String topic, final Class<T> cls, final boolean acceptsItself, final Consumer<T> consumer) {
+        this.pubSub.subscribe(topic, cls, (msg) -> {
             if (msg.target() != null && !this.instanceId.equals(msg.target())) {
                 return;
             }
@@ -55,8 +50,8 @@ public final class RedisPipeline {
             }
             consumer.accept(msg);
         });
-        if (RedisMessageResponsible.class.isAssignableFrom(cls)) {
-            this.register(topic, RedisMessageResponse.class, acceptsItself, response -> {
+        if (BridgeMessageResponsible.class.isAssignableFrom(cls)) {
+            this.register(topic, BridgeMessageResponse.class, acceptsItself, response -> {
                 final var future = this.responses.get(response.request());
                 if (future != null) {
                     future.complete(response.data());
@@ -65,23 +60,23 @@ public final class RedisPipeline {
         }
     }
 
-    public <T extends RedisMessage> void callAndForget(final String topic, final T message) {
+    public <T extends BridgeMessage> void callAndForget(final String topic, final T message) {
         this.callAndForget(null, topic, message);
     }
 
-    public <T extends RedisMessage> void callAndForget(final String target, final String topic, final T message) {
+    public <T extends BridgeMessage> void callAndForget(final String target, final String topic, final T message) {
         message.init(UUID.randomUUID(), this.instanceId, target);
-        if (message instanceof RedisMessageResponsible<?> responsible) {
+        if (message instanceof BridgeMessageResponsible<?> responsible) {
             responsible.init(this, topic);
         }
-        this.topic(topic).publish(message);
+        this.pubSub.publish(topic, message);
     }
 
-    public <R, T extends RedisMessageResponsible<R>> CompletableFuture<R> call(final String topic, final T data, final Duration timeout) {
+    public <R, T extends BridgeMessageResponsible<R>> CompletableFuture<R> call(final String topic, final T data, final Duration timeout) {
         return this.call(null, topic, data, timeout);
     }
 
-    public <R, T extends RedisMessageResponsible<R>> CompletableFuture<R> call(final String target, final String topic, final T data, final Duration timeout) {
+    public <R, T extends BridgeMessageResponsible<R>> CompletableFuture<R> call(final String target, final String topic, final T data, final Duration timeout) {
         final var future = new CompletableFuture<R>();
         if (!timeout.isNegative()) {
             future
@@ -91,9 +86,5 @@ public final class RedisPipeline {
         this.responses.put(data, future);
         this.callAndForget(target, topic, data);
         return future;
-    }
-
-    private RTopic topic(final String topic) {
-        return this.topics.computeIfAbsent(topic, this.redis::getTopic);
     }
 }

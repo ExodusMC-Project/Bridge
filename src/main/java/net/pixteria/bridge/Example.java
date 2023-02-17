@@ -9,7 +9,7 @@ final class Example {
     public static void main(String[] args) {
         final RedissonClient redis = null;
         final var instanceId = "skyblock-1";
-        final var pipeline = new RedisPipeline(redis, instanceId)
+        final var pipeline = new BridgePipeline(new BridgeRedis(redis), instanceId)
             .filter(message -> message.instanceId().startsWith("skyblock"));
         pipeline.register("test-message", TestMessage.Request.class, message -> {
             assert message.test.equals("ping");
@@ -22,7 +22,7 @@ final class Example {
     }
 
     private static final class TestMessage {
-        private static final class Request extends RedisMessageResponsible<Response> {
+        private static final class Request extends BridgeMessageResponsible<Response> {
             private final String test;
 
             public Request(final String test) {
