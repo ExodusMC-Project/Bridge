@@ -37,10 +37,12 @@ public final class Pipeline {
 
     public <T extends Event> void callAndForget(final String topic, final T event) {
         this.topics.computeIfAbsent(topic, redis::getTopic).publish(event);
+        if (event instanceof EventResponsible<?>) {
+            ((EventResponsible<?>) event).init(this, topic);
+        }
     }
 
     public <R, T extends EventResponsible<R>> CompletableFuture<R> call(final String topic, final T data, final Duration timeout) {
-        data.init(this, topic);
         this.callAndForget(topic, data);
         final var future = new CompletableFuture<R>();
         if (!timeout.isNegative()) {
