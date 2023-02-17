@@ -70,11 +70,11 @@ public final class RedisPipeline {
     }
 
     public <T extends RedisMessage> void callAndForget(final String target, final String topic, final T message) {
-        this.topic(topic).publish(message);
         message.init(UUID.randomUUID(), this.instanceId, target);
         if (message instanceof RedisMessageResponsible<?> responsible) {
             responsible.init(this, topic);
         }
+        this.topic(topic).publish(message);
     }
 
     public <R, T extends RedisMessageResponsible<R>> CompletableFuture<R> call(final String topic, final T data, final Duration timeout) {
