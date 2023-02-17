@@ -65,13 +65,13 @@ public final class Pipeline {
         }
     }
 
-    public <T extends RedisMessage> void callAndForget(final String topic, final T event) {
-        this.callAndForget(null, topic, event);
+    public <T extends RedisMessage> void callAndForget(final String topic, final T message) {
+        this.callAndForget(null, topic, message);
     }
 
-    public <T extends RedisMessage> void callAndForget(final String target, final String topic, final T event) {
-        this.topic(topic).publish(event);
-        if (event instanceof RedisMessageResponsible<?> responsible) {
+    public <T extends RedisMessage> void callAndForget(final String target, final String topic, final T message) {
+        this.topic(topic).publish(message);
+        if (message instanceof RedisMessageResponsible<?> responsible) {
             responsible.init(UUID.randomUUID(), this.instanceId, target, this, topic);
         }
     }

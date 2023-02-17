@@ -33,8 +33,8 @@ public abstract class RedisMessage {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        final var event = (RedisMessage) o;
-        return Objects.equals(this.id, event.id);
+        final var message = (RedisMessage) o;
+        return Objects.equals(this.id, message.id);
     }
 
     @Override
