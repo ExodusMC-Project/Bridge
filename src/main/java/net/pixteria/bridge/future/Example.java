@@ -8,8 +8,9 @@ final class Example {
 
     public static void main(String[] args) {
         final RedissonClient redis = null;
-        final var instanceId = "server-1";
-        final var pipeline = new Pipeline(redis, instanceId);
+        final var instanceId = "skyblock-1";
+        final var pipeline = new Pipeline(redis, instanceId)
+            .filter(message -> message.instanceId().startsWith("skyblock"));
         pipeline.register("test-event", TestEvent.Request.class, event -> {
             assert event.test.equals("ping");
             event.reply(new TestEvent.Response("pong"));
