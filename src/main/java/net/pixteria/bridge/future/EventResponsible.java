@@ -12,6 +12,6 @@ public abstract class EventResponsible<T> extends Event {
     }
 
     public void reply(final T value) {
-        this.pipeline.callAndForget(this.topic, new Response<>(this, value));
+        this.pipeline.callAndForget(this.topic, new Response(this, value));
     }
 }

@@ -23,7 +23,7 @@ public final class Pipeline {
         this.redis = redis;
     }
 
-    public <T extends Event> void register(final String topic, final Class<T> cls, final Consumer<T> consumer) {
+    public <T> void register(final String topic, final Class<T> cls, final Consumer<T> consumer) {
         this.topic(topic).addListener(cls, (channel, msg) -> consumer.accept(msg));
         if (EventResponsible.class.isAssignableFrom(cls)) {
             this.register(topic, Response.class, response -> {

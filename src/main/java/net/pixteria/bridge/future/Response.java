@@ -1,12 +1,12 @@
 package net.pixteria.bridge.future;
 
-public final class Response<R> extends Event {
+public final class Response extends Event {
 
     private final Event request;
 
-    private final R data;
+    private final Object data;
 
-    public Response(final Event request, final R data) {
+    public Response(final Event request, final Object data) {
         this.request = request;
         this.data = data;
     }
@@ -15,7 +15,7 @@ public final class Response<R> extends Event {
         return request;
     }
 
-    public R data() {
+    public Object data() {
         return data;
     }
 }
