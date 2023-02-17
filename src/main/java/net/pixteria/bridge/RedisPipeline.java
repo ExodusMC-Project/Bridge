@@ -77,11 +77,11 @@ public final class RedisPipeline {
         }
     }
 
-    public <R extends RedisMessage, T extends RedisMessageResponsible<R>> CompletableFuture<R> call(final String topic, final T data, final Duration timeout) {
+    public <R, T extends RedisMessageResponsible<R>> CompletableFuture<R> call(final String topic, final T data, final Duration timeout) {
         return this.call(null, topic, data, timeout);
     }
 
-    public <R extends RedisMessage, T extends RedisMessageResponsible<R>> CompletableFuture<R> call(final String target, final String topic, final T data, final Duration timeout) {
+    public <R, T extends RedisMessageResponsible<R>> CompletableFuture<R> call(final String target, final String topic, final T data, final Duration timeout) {
         this.callAndForget(target, topic, data);
         final var future = new CompletableFuture<R>();
         if (!timeout.isNegative()) {
