@@ -37,8 +37,8 @@ public final class Pipeline {
 
     public <T extends Event> void callAndForget(final String topic, final T event) {
         this.topics.computeIfAbsent(topic, redis::getTopic).publish(event);
-        if (event instanceof EventResponsible<?>) {
-            ((EventResponsible<?>) event).init(this, topic);
+        if (event instanceof EventResponsible<?> responsible) {
+            responsible.init(this, topic);
         }
     }
 
