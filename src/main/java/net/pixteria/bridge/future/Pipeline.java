@@ -66,6 +66,6 @@ public final class Pipeline {
     }
 
     private RTopic topic(final String topic) {
-        return this.topics.computeIfAbsent(topic, redis::getTopic);
+        return this.topics.computeIfAbsent(topic, this.redis::getTopic);
     }
 }
