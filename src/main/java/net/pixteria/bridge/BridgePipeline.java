@@ -33,12 +33,12 @@ public final class BridgePipeline {
         return this;
     }
 
-    public <T extends BridgeMessage> void register(final String topic, final Class<T> cls, final Consumer<T> consumer) {
-        this.register(topic, cls, true, consumer);
+    public <T extends BridgeMessage> void register(final Class<T> cls, final Consumer<T> consumer) {
+        this.register(cls, true, consumer);
     }
 
-    public <T extends BridgeMessage> void register(final String topic, final Class<T> cls, final boolean acceptsItself, final Consumer<T> consumer) {
-        this.pubSub.subscribe(topic, cls, (msg) -> {
+    public <T extends BridgeMessage> void register(final Class<T> cls, final boolean acceptsItself, final Consumer<T> consumer) {
+        this.pubSub.subscribe(cls, (msg) -> {
             if (msg.target() != null && !this.instanceId.equals(msg.target())) {
                 return;
             }
@@ -51,7 +51,7 @@ public final class BridgePipeline {
             consumer.accept(msg);
         });
         if (BridgeMessageResponsible.class.isAssignableFrom(cls)) {
-            this.register(topic, BridgeMessageResponse.class, acceptsItself, response -> {
+            this.register(BridgeMessageResponse.class, acceptsItself, response -> {
                 final var future = this.responses.get(response.request());
                 if (future != null) {
                     future.complete(response.data());
@@ -60,23 +60,23 @@ public final class BridgePipeline {
         }
     }
 
-    public <T extends BridgeMessage> void callAndForget(final String topic, final T message) {
-        this.callAndForget(null, topic, message);
+    public <T extends BridgeMessage> void callAndForget(final T message) {
+        this.callAndForget(null, message);
     }
 
-    public <T extends BridgeMessage> void callAndForget(final String target, final String topic, final T message) {
+    public <T extends BridgeMessage> void callAndForget(final String target, final T message) {
         message.init(UUID.randomUUID(), this.instanceId, target);
         if (message instanceof BridgeMessageResponsible<?> responsible) {
-            responsible.init(this, topic);
+            responsible.init(this);
         }
-        this.pubSub.publish(topic, message);
+        this.pubSub.publish(message);
     }
 
-    public <R, T extends BridgeMessageResponsible<R>> CompletableFuture<R> call(final String topic, final T data, final Duration timeout) {
-        return this.call(null, topic, data, timeout);
+    public <R, T extends BridgeMessageResponsible<R>> CompletableFuture<R> call(final T data, final Duration timeout) {
+        return this.call(null, data, timeout);
     }
 
-    public <R, T extends BridgeMessageResponsible<R>> CompletableFuture<R> call(final String target, final String topic, final T data, final Duration timeout) {
+    public <R, T extends BridgeMessageResponsible<R>> CompletableFuture<R> call(final String target, final T data, final Duration timeout) {
         final var future = new CompletableFuture<R>();
         if (!timeout.isNegative()) {
             future
@@ -84,7 +84,7 @@ public final class BridgePipeline {
                 .whenComplete((__, t) -> this.responses.remove(data));
         }
         this.responses.put(data, future);
-        this.callAndForget(target, topic, data);
+        this.callAndForget(target, data);
         return future;
     }
 }
