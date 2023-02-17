@@ -19,8 +19,11 @@ public final class Pipeline {
 
     private final RedissonClient redis;
 
-    public Pipeline(final RedissonClient redis) {
+    private final String instanceId;
+
+    public Pipeline(final RedissonClient redis, final String instanceId) {
         this.redis = redis;
+        this.instanceId = instanceId;
     }
 
     public <T> void register(final String topic, final Class<T> cls, final Consumer<T> consumer) {
@@ -38,7 +41,7 @@ public final class Pipeline {
     public <T> void callAndForget(final String topic, final T event) {
         this.topic(topic).publish(event);
         if (event instanceof EventResponsible<?> responsible) {
-            responsible.init(this, topic);
+            responsible.init(this.instanceId, this, topic);
         }
     }
 

@@ -7,6 +7,12 @@ public abstract class Event {
 
     private final UUID id = UUID.randomUUID();
 
+    private String instanceId;
+
+    void init(final String instanceId) {
+        this.instanceId = instanceId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
