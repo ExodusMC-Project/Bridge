@@ -16,7 +16,7 @@ public final class Pipeline {
 
     private final Map<String, RTopic> topics = new ConcurrentHashMap<>();
 
-    private final Map<Event, CompletableFuture> responses = new ConcurrentHashMap<>();
+    private final Map<RedisMessage, CompletableFuture> responses = new ConcurrentHashMap<>();
 
     private final RedissonClient redis;
 
@@ -27,11 +27,11 @@ public final class Pipeline {
         this.instanceId = instanceId;
     }
 
-    public <T extends Event> void register(final String topic, final Class<T> cls, final Consumer<T> consumer) {
+    public <T extends RedisMessage> void register(final String topic, final Class<T> cls, final Consumer<T> consumer) {
         this.register(topic, cls, true, consumer);
     }
 
-    public <T extends Event> void register(final String topic, final Class<T> cls, final boolean acceptsItself, final Consumer<T> consumer) {
+    public <T extends RedisMessage> void register(final String topic, final Class<T> cls, final boolean acceptsItself, final Consumer<T> consumer) {
         this.topic(topic).addListener(cls, (channel, msg) -> {
             if (msg.target() != null && !this.instanceId.equals(msg.target())) {
                 return;
@@ -41,7 +41,7 @@ public final class Pipeline {
             }
             consumer.accept(msg);
         });
-        if (EventResponsible.class.isAssignableFrom(cls)) {
+        if (RedisMessageResponsible.class.isAssignableFrom(cls)) {
             this.register(topic, Response.class, acceptsItself, response -> {
                 final var future = this.responses.get(response.request());
                 if (future != null) {
@@ -51,22 +51,22 @@ public final class Pipeline {
         }
     }
 
-    public <T extends Event> void callAndForget(final String topic, final T event) {
+    public <T extends RedisMessage> void callAndForget(final String topic, final T event) {
         this.callAndForget(null, topic, event);
     }
 
-    public <T extends Event> void callAndForget(final String target, final String topic, final T event) {
+    public <T extends RedisMessage> void callAndForget(final String target, final String topic, final T event) {
         this.topic(topic).publish(event);
-        if (event instanceof EventResponsible<?> responsible) {
+        if (event instanceof RedisMessageResponsible<?> responsible) {
             responsible.init(UUID.randomUUID(), this.instanceId, target, this, topic);
         }
     }
 
-    public <R, T extends EventResponsible<R>> CompletableFuture<R> call(final String topic, final T data, final Duration timeout) {
+    public <R, T extends RedisMessageResponsible<R>> CompletableFuture<R> call(final String topic, final T data, final Duration timeout) {
         return this.call(null, topic, data, timeout);
     }
 
-    public <R, T extends EventResponsible<R>> CompletableFuture<R> call(final String target, final String topic, final T data, final Duration timeout) {
+    public <R, T extends RedisMessageResponsible<R>> CompletableFuture<R> call(final String target, final String topic, final T data, final Duration timeout) {
         this.callAndForget(target, topic, data);
         final var future = new CompletableFuture<R>();
         if (!timeout.isNegative()) {

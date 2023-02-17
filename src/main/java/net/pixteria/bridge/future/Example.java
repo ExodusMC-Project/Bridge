@@ -21,7 +21,7 @@ final class Example {
     }
 
     private static final class TestEvent {
-        private static final class Request extends EventResponsible<Response> {
+        private static final class Request extends RedisMessageResponsible<Response> {
             private final String test;
 
             public Request(final String test) {

@@ -2,7 +2,7 @@ package net.pixteria.bridge.future;
 
 import java.util.UUID;
 
-public abstract class EventResponsible<T> extends Event {
+public abstract class RedisMessageResponsible<T> extends RedisMessage {
 
     private Pipeline pipeline;
 

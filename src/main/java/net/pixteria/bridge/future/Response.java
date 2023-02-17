@@ -1,17 +1,17 @@
 package net.pixteria.bridge.future;
 
-public final class Response extends Event {
+public final class Response extends RedisMessage {
 
-    private final Event request;
+    private final RedisMessage request;
 
     private final Object data;
 
-    public Response(final Event request, final Object data) {
+    public Response(final RedisMessage request, final Object data) {
         this.request = request;
         this.data = data;
     }
 
-    public Event request() {
+    public RedisMessage request() {
         return this.request;
     }
 

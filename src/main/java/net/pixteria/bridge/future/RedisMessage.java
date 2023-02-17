@@ -3,7 +3,7 @@ package net.pixteria.bridge.future;
 import java.util.Objects;
 import java.util.UUID;
 
-public abstract class Event {
+public abstract class RedisMessage {
 
     private UUID id;
 
@@ -33,7 +33,7 @@ public abstract class Event {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        final var event = (Event) o;
+        final var event = (RedisMessage) o;
         return Objects.equals(this.id, event.id);
     }
 
