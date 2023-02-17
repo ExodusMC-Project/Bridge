@@ -27,17 +27,17 @@ public final class Pipeline {
     }
 
     public <T extends Event> void register(final String topic, final Class<T> cls, final Consumer<T> consumer) {
-        this.register(topic, cls, consumer, true);
+        this.register(topic, cls, true, consumer);
     }
 
-    public <T extends Event> void register(final String topic, final Class<T> cls, final Consumer<T> consumer, final boolean acceptsItself) {
+    public <T extends Event> void register(final String topic, final Class<T> cls, final boolean acceptsItself, final Consumer<T> consumer) {
         this.topic(topic).addListener(cls, (channel, msg) -> {
             if (acceptsItself || msg.instanceId().equals(this.instanceId)) {
                 consumer.accept(msg);
             }
         });
         if (EventResponsible.class.isAssignableFrom(cls)) {
-            this.register(topic, Response.class, response -> {
+            this.register(topic, Response.class, acceptsItself, response -> {
                 final var future = this.responses.get(response.request());
                 if (future != null) {
                     future.complete(response.data());
