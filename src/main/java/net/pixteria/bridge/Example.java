@@ -9,7 +9,7 @@ final class Example {
     public static void main(String[] args) {
         final RedissonClient redis = null;
         final var instanceId = "skyblock-1";
-        final var pipeline = new Pipeline(redis, instanceId)
+        final var pipeline = new RedisPipeline(redis, instanceId)
             .filter(message -> message.instanceId().startsWith("skyblock"));
         pipeline.register("test-message", TestMessage.Request.class, message -> {
             assert message.test.equals("ping");

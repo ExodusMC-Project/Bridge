@@ -1,20 +1,17 @@
 package net.pixteria.bridge;
 
-import java.util.UUID;
-
 public abstract class RedisMessageResponsible<T> extends RedisMessage {
 
-    private Pipeline pipeline;
+    private RedisPipeline pipeline;
 
     private String topic;
 
-    void init(final UUID id, final String instanceId, final String target, final Pipeline pipeline, final String topic) {
-        this.init(id, instanceId, target);
-        this.pipeline = pipeline;
+    void init(final RedisPipeline redisPipeline, final String topic) {
+        this.pipeline = redisPipeline;
         this.topic = topic;
     }
 
     public void reply(final T value) {
-        this.pipeline.callAndForget(this.topic, new Response(this, value));
+        this.pipeline.callAndForget(this.instanceId(), this.topic, new RedisMessageResponse(this, value));
     }
 }

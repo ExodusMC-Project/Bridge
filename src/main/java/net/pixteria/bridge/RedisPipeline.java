@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public final class Pipeline {
+public final class RedisPipeline {
 
     private final Map<String, RTopic> topics = new ConcurrentHashMap<>();
 
@@ -25,12 +25,12 @@ public final class Pipeline {
 
     private Predicate<RedisMessage> filter;
 
-    public Pipeline(final RedissonClient redis, final String instanceId) {
+    public RedisPipeline(final RedissonClient redis, final String instanceId) {
         this.redis = redis;
         this.instanceId = instanceId;
     }
 
-    public Pipeline filter(final Predicate<RedisMessage> filter) {
+    public RedisPipeline filter(final Predicate<RedisMessage> filter) {
         if (this.filter == null) {
             this.filter = redisMessage -> true;
         }
@@ -56,7 +56,7 @@ public final class Pipeline {
             consumer.accept(msg);
         });
         if (RedisMessageResponsible.class.isAssignableFrom(cls)) {
-            this.register(topic, Response.class, acceptsItself, response -> {
+            this.register(topic, RedisMessageResponse.class, acceptsItself, response -> {
                 final var future = this.responses.get(response.request());
                 if (future != null) {
                     future.complete(response.data());
@@ -71,8 +71,9 @@ public final class Pipeline {
 
     public <T extends RedisMessage> void callAndForget(final String target, final String topic, final T message) {
         this.topic(topic).publish(message);
+        message.init(UUID.randomUUID(), this.instanceId, target);
         if (message instanceof RedisMessageResponsible<?> responsible) {
-            responsible.init(UUID.randomUUID(), this.instanceId, target, this, topic);
+            responsible.init(this, topic);
         }
     }
 

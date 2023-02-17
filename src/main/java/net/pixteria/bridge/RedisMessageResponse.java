@@ -1,21 +1,21 @@
 package net.pixteria.bridge;
 
-public final class Response extends RedisMessage {
+public final class RedisMessageResponse extends RedisMessage {
 
     private final RedisMessage request;
 
     private final Object data;
 
-    public Response(final RedisMessage request, final Object data) {
+    public RedisMessageResponse(final RedisMessage request, final Object data) {
         this.request = request;
         this.data = data;
     }
 
-    public RedisMessage request() {
+    RedisMessage request() {
         return this.request;
     }
 
-    public Object data() {
+    Object data() {
         return this.data;
     }
 }
