@@ -30,7 +30,7 @@ final class Example {
             }
         }
 
-        private static final class Response {
+        private static final class Response extends RedisMessage {
             private final String test2;
 
             public Response(final String test2) {

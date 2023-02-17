@@ -1,6 +1,6 @@
 package net.pixteria.bridge;
 
-public abstract class RedisMessageResponsible<T> extends RedisMessage {
+public abstract class RedisMessageResponsible<T extends RedisMessage> extends RedisMessage {
 
     private RedisPipeline pipeline;
 
@@ -12,6 +12,6 @@ public abstract class RedisMessageResponsible<T> extends RedisMessage {
     }
 
     public void reply(final T value) {
-        this.pipeline.callAndForget(this.instanceId(), this.topic, new RedisMessageResponse(this, value));
+        this.pipeline.callAndForget(this.instanceId(), this.topic, new RedisMessageResponse<>(this, value));
     }
 }
