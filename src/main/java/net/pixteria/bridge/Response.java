@@ -1,4 +1,4 @@
-package net.pixteria.bridge.future;
+package net.pixteria.bridge;
 
 public final class Response extends RedisMessage {
 

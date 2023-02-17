@@ -1,4 +1,4 @@
-package net.pixteria.bridge.future;
+package net.pixteria.bridge;
 
 import org.redisson.api.RedissonClient;
 
