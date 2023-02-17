@@ -12,10 +12,10 @@ public final class Response extends Event {
     }
 
     public Event request() {
-        return request;
+        return this.request;
     }
 
     public Object data() {
-        return data;
+        return this.data;
     }
 }
