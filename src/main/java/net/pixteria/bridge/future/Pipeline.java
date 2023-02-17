@@ -19,11 +19,11 @@ public final class Pipeline {
 
     private final Map<RedisMessage, CompletableFuture> responses = new ConcurrentHashMap<>();
 
-    private Predicate<RedisMessage> filter;
-
     private final RedissonClient redis;
 
     private final String instanceId;
+
+    private Predicate<RedisMessage> filter;
 
     public Pipeline(final RedissonClient redis, final String instanceId) {
         this.redis = redis;
