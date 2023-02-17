@@ -32,9 +32,13 @@ public final class Pipeline {
 
     public <T extends Event> void register(final String topic, final Class<T> cls, final boolean acceptsItself, final Consumer<T> consumer) {
         this.topic(topic).addListener(cls, (channel, msg) -> {
-            if (acceptsItself || msg.instanceId().equals(this.instanceId)) {
-                consumer.accept(msg);
+            if (msg.target() != null && !this.instanceId.equals(msg.target())) {
+                return;
             }
+            if (msg.instanceId().equals(this.instanceId) && !acceptsItself) {
+                return;
+            }
+            consumer.accept(msg);
         });
         if (EventResponsible.class.isAssignableFrom(cls)) {
             this.register(topic, Response.class, acceptsItself, response -> {
@@ -47,9 +51,13 @@ public final class Pipeline {
     }
 
     public <T extends Event> void callAndForget(final String topic, final T event) {
+        this.callAndForget(null, topic, event);
+    }
+
+    public <T extends Event> void callAndForget(final String target, final String topic, final T event) {
         this.topic(topic).publish(event);
         if (event instanceof EventResponsible<?> responsible) {
-            responsible.init(this.instanceId, this, topic);
+            responsible.init(this.instanceId, target, this, topic);
         }
     }
 

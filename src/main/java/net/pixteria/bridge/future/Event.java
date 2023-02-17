@@ -9,12 +9,19 @@ public abstract class Event {
 
     private String instanceId;
 
-    void init(final String instanceId) {
+    private String target;
+
+    void init(final String instanceId, final String target) {
         this.instanceId = instanceId;
+        this.target = target;
     }
 
     String instanceId() {
         return this.instanceId;
+    }
+
+    String target() {
+        return this.target;
     }
 
     @Override

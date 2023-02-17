@@ -6,8 +6,8 @@ public abstract class EventResponsible<T> extends Event {
 
     private String topic;
 
-    void init(final String instanceId, final Pipeline pipeline, final String topic) {
-        this.init(instanceId);
+    void init(final String instanceId, final String target, final Pipeline pipeline, final String topic) {
+        this.init(instanceId, target);
         this.pipeline = pipeline;
         this.topic = topic;
     }
