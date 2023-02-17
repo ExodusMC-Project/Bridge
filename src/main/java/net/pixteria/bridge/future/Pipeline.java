@@ -35,7 +35,7 @@ public final class Pipeline {
         }
     }
 
-    public <T extends Event> void callAndForget(final String topic, final T event) {
+    public <T> void callAndForget(final String topic, final T event) {
         this.topic(topic).publish(event);
         if (event instanceof EventResponsible<?> responsible) {
             responsible.init(this, topic);
