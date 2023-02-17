@@ -10,6 +10,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public final class Pipeline {
@@ -18,6 +19,8 @@ public final class Pipeline {
 
     private final Map<RedisMessage, CompletableFuture> responses = new ConcurrentHashMap<>();
 
+    private Predicate<RedisMessage> filter;
+
     private final RedissonClient redis;
 
     private final String instanceId;
@@ -25,6 +28,14 @@ public final class Pipeline {
     public Pipeline(final RedissonClient redis, final String instanceId) {
         this.redis = redis;
         this.instanceId = instanceId;
+    }
+
+    public Pipeline filter(final Predicate<RedisMessage> filter) {
+        if (this.filter == null) {
+            this.filter = redisMessage -> true;
+        }
+        this.filter = this.filter.and(filter);
+        return this;
     }
 
     public <T extends RedisMessage> void register(final String topic, final Class<T> cls, final Consumer<T> consumer) {
@@ -37,6 +48,9 @@ public final class Pipeline {
                 return;
             }
             if (msg.instanceId().equals(this.instanceId) && !acceptsItself) {
+                return;
+            }
+            if (this.filter != null && !this.filter.test(msg)) {
                 return;
             }
             consumer.accept(msg);
