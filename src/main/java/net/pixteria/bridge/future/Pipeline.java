@@ -24,7 +24,7 @@ public final class Pipeline {
     }
 
     public <T extends Event> void register(final String topic, final Class<T> cls, final Consumer<T> consumer) {
-        this.topics.computeIfAbsent(topic, redis::getTopic).addListener(cls, (channel, msg) -> consumer.accept(msg));
+        this.topic(topic).addListener(cls, (channel, msg) -> consumer.accept(msg));
         if (EventResponsible.class.isAssignableFrom(cls)) {
             this.register(topic, Response.class, response -> {
                 final var future = this.responses.get(response.request());
@@ -36,7 +36,7 @@ public final class Pipeline {
     }
 
     public <T extends Event> void callAndForget(final String topic, final T event) {
-        this.topics.computeIfAbsent(topic, redis::getTopic).publish(event);
+        this.topic(topic).publish(event);
         if (event instanceof EventResponsible<?> responsible) {
             responsible.init(this, topic);
         }
@@ -52,5 +52,9 @@ public final class Pipeline {
         }
         this.responses.put(data, future);
         return future;
+    }
+
+    private RTopic topic(final String topic) {
+        return this.topics.computeIfAbsent(topic, redis::getTopic);
     }
 }
