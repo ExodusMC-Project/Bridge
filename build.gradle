@@ -1,20 +1,68 @@
 plugins {
     id 'java'
+    id 'java-library'
+    id 'maven-publish'
+    alias libs.plugins.shadow
 }
 
 group 'net.pixteria.bridge'
 version '1.0-SNAPSHOT'
 
+def nexusUsername = project.hasProperty("exodus.username") ? file("secrets.gradle").exists() ? nexusUsername = nexusUsernameSecret : project.findProperty("exodus.username") as String : System.getenv("NEXUS_USERNAME")
+def nexusPassword = project.hasProperty("exodus.password") ? file("secrets.gradle").exists() ? nexusPassword = nexusPasswordSecret : project.findProperty("exodus.password") as String : System.getenv("NEXUS_PASSWORD")
+
 repositories {
+    mavenLocal()
     mavenCentral()
+    maven {
+        url "https://nexus.potpvp.net/repository/pixteria-builds/"
+        credentials {
+            username nexusUsername
+            password nexusPassword
+        }
+    }
+}
+
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
 }
 
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
-    implementation 'org.redisson:redisson:3.19.3'
+    api 'org.redisson:redisson:3.19.3'
 }
 
 test {
     useJUnitPlatform()
+}
+
+tasks {
+    build {
+        dependsOn publishToMavenLocal
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            url "https://nexus.potpvp.net/repository/pixteria-builds/"
+            credentials {
+                username nexusUsername
+                password nexusPassword
+            }
+        }
+    }
+
+    publications {
+        maven(MavenPublication) {
+            groupId = group
+            artifactId = project.name
+            version = version
+            from components.java
+        }
+    }
 }

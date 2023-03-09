@@ -1,0 +1,32 @@
+[libraries]
+
+# Framwork
+paper = { module = "io.papermc.paper:paper-api", version = "1.19.3-R0.1-SNAPSHOT" }
+annotations = { module = "org.jetbrains:annotations", version = "24.0.0" }
+
+# Utils
+lombok = { module = "org.projectlombok:lombok", version = "1.18.26" }
+
+# APIs
+protocollib = { module = "com.comphenix.protocol:ProtocolLib", version = "5.0.0-SNAPSHOT" }
+cloud-paper = { module = "cloud.commandframework:cloud-paper", version = "1.8.0" }
+cloud-annotations = { module = "cloud.commandframework:cloud-annotations", version = "1.8.0" }
+inventory = { module = "com.github.stefvanschie.inventoryframework:IF", version = "0.10.8" }
+
+# Pixteria
+data-api = { module = "net.pixteria.data:api", version = "1.0-SNAPSHOT" }
+redigo = { module = "net.pixteria.redigo:redigo", version = "1.0-SNAPSHOT" }
+world_manager = { module = "net.pixteria:world_manager", version = "1.0.0" }
+libraries-bukkit = { module = "net.pixteria:libraries-bukkit-api", version = "1.0.0-SNAPSHOT" }
+
+# Testing
+junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version = "5.9.2" }
+junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version = "5.9.2" }
+
+# Lightdream
+lightdream-filemanager = { module = "dev.lightdream:file-manager", version = "2.4.4" }
+
+[plugins]
+shadow = { id = "com.github.johnrengelman.shadow", version = "7.1.2" }
+paperweight = { id = "io.papermc.paperweight.userdev", version = "1.5.2" }
+runpaper = { id = "xyz.jpenilla.run-paper", version = "2.0.1" }
