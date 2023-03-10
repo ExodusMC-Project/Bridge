@@ -6,6 +6,10 @@ annotations = { module = "org.jetbrains:annotations", version = "24.0.0" }
 
 # Utils
 lombok = { module = "org.projectlombok:lombok", version = "1.18.26" }
+memory-store = { module = "com.oop:memory-store", version = "4.0" }
+guava = { module = "com.google.guava:guava", version = "30.1.1-jre" }
+guice = { module = "com.google.inject:guice", version = "5.0.1" }
+redisson = { module = "org.redisson:redisson", version = "3.19.3" }
 
 # APIs
 protocollib = { module = "com.comphenix.protocol:ProtocolLib", version = "5.0.0-SNAPSHOT" }
@@ -16,6 +20,7 @@ inventory = { module = "com.github.stefvanschie.inventoryframework:IF", version 
 # Pixteria
 data-api = { module = "net.pixteria.data:api", version = "1.0-SNAPSHOT" }
 redigo = { module = "net.pixteria.redigo:redigo", version = "1.0-SNAPSHOT" }
+bridge = { module = "net.pixteria.bridge:Bridge", version = "1.0-SNAPSHOT" }
 world_manager = { module = "net.pixteria:world_manager", version = "1.0.0" }
 libraries-bukkit = { module = "net.pixteria:libraries-bukkit-api", version = "1.0.0-SNAPSHOT" }
 

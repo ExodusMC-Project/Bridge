@@ -83,6 +83,7 @@ public final class BridgePipeline {
                 .orTimeout(timeout.toMillis(), TimeUnit.MILLISECONDS)
                 .whenComplete((__, t) -> this.responses.remove(data));
         }
+        data.init(UUID.randomUUID(), this.instanceId, target);
         this.responses.put(data, future);
         this.callAndForget(target, data);
         return future;

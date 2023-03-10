@@ -11,10 +11,16 @@ public abstract class BridgeMessage {
 
     private String target;
 
+    private boolean initiated = false;
+
     void init(final UUID id, final String instanceId, final String target) {
+        if (this.initiated) {
+            return;
+        }
         this.id = id;
         this.instanceId = instanceId;
         this.target = target;
+        this.initiated = true;
     }
 
     String instanceId() {
