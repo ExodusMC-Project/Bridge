@@ -6,28 +6,24 @@ import java.util.UUID;
 public abstract class BridgeMessage {
 
     private UUID id;
-
     private String instanceId;
-
     private String target;
 
-    private boolean initiated = false;
-
     void init(final UUID id, final String instanceId, final String target) {
-        if (this.initiated) {
-            return;
-        }
         this.id = id;
         this.instanceId = instanceId;
         this.target = target;
-        this.initiated = true;
     }
 
-    String instanceId() {
+    protected UUID getRequestId() {
+        return this.id;
+    }
+
+    protected String getInstanceId() {
         return this.instanceId;
     }
 
-    String target() {
+    protected String getTarget() {
         return this.target;
     }
 
@@ -39,7 +35,7 @@ public abstract class BridgeMessage {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        final var message = (BridgeMessage) o;
+        final BridgeMessage message = (BridgeMessage) o;
         return Objects.equals(this.id, message.id);
     }
 

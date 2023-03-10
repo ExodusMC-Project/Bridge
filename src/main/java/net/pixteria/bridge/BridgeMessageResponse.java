@@ -1,21 +1,26 @@
 package net.pixteria.bridge;
 
-public final class BridgeMessageResponse extends BridgeMessage {
+import java.util.UUID;
 
-    private final BridgeMessage request;
+public class BridgeMessageResponse extends BridgeMessage {
 
-    private final Object data;
+    private UUID parentId;
+    private Object data;
+
+    public BridgeMessageResponse() {
+
+    }
 
     public BridgeMessageResponse(final BridgeMessage request, final Object data) {
-        this.request = request;
+        this.parentId = request.getRequestId();
         this.data = data;
     }
 
-    BridgeMessage request() {
-        return this.request;
+    public UUID getParentId() {
+        return this.parentId;
     }
 
-    Object data() {
+    public Object getData() {
         return this.data;
     }
 }
